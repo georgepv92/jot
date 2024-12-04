@@ -4,6 +4,14 @@ import { Pencil, ClipboardList, Calendar, BarChart2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
+interface NavButtonProps {
+  href: string
+  icon: React.ElementType
+  label: string
+  isActive?: boolean
+  onClick?: () => void
+}
+
 export function NavBar() {
   const [activeTab, setActiveTab] = useState('jot')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -15,7 +23,7 @@ export function NavBar() {
           <Pencil className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
           <span className="text-xl sm:text-2xl font-montserrat font-semibold italic text-black">Jot</span>
         </Link>
-        <button className="md:hidden text-jot-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button className="md:hidden text-black" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -39,7 +47,7 @@ export function NavBar() {
   )
 }
 
-function NavButton({ href, icon: Icon, label, isActive, onClick }) {
+function NavButton({ href, icon: Icon, label, isActive, onClick }: NavButtonProps) {
   return (
     <Link 
       href={href} 

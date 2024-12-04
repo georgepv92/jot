@@ -2,7 +2,12 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { DayPicker } from "react-day-picker"
+import { DayPicker, type CustomComponents } from "react-day-picker"
+
+// Force TypeScript to show us the valid keys
+type ComponentKeys = keyof CustomComponents;
+// @ts-expect-error - Intentionally causing an error to see available keys
+const dummy: ComponentKeys = "force-typescript-to-show-keys";
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -54,8 +59,17 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        CaptionLabel: ({ ...props }) => <span {...props} />,
+        PreviousMonthButton: ({ ...props }) => (
+          <button {...props}>
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        ),
+        NextMonthButton: ({ ...props }) => (
+          <button {...props}>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )
       }}
       {...props}
     />

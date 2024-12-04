@@ -119,7 +119,12 @@ export default function Analyze() {
   )
 }
 
-function DashboardCard({ title, value }) {
+interface DashboardCardProps {
+  title: string;
+  value: string;
+}
+
+function DashboardCard({ title, value }: DashboardCardProps) {
   return (
     <div className="p-6 rounded-lg border bg-white shadow-md hover:shadow-lg transition-shadow">
       <h2 className="text-lg font-montserrat font-medium italic text-black mb-2">{title}</h2>
