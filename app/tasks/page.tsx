@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSupabase } from '../supabase-provider'
 import Layout from '@/components/Layout'
 
 interface Task {
@@ -13,50 +12,25 @@ interface Task {
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [newTaskTitle, setNewTaskTitle] = useState('')
-  const supabase = useSupabase()
-
-  useEffect(() => {
-    fetchTasks()
-  }, [])
-
-  async function fetchTasks() {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .order('id', { ascending: true })
-    
-    if (error) console.log('Error fetching tasks:', error)
-    else setTasks(data || [])
-  }
 
   async function addTask(e: React.FormEvent) {
     e.preventDefault()
     if (!newTaskTitle.trim()) return
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([{ title: newTaskTitle, is_complete: false }])
-      .select()
-
-    if (error) console.log('Error adding task:', error)
-    else {
-      setTasks([...tasks, ...data])
-      setNewTaskTitle('')
+    const newTask = {
+      id: tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+      title: newTaskTitle,
+      is_complete: false
     }
+
+    setTasks([...tasks, newTask])
+    setNewTaskTitle('')
   }
 
-  async function toggleTaskCompletion(id: number, is_complete: boolean) {
-    const { error } = await supabase
-      .from('tasks')
-      .update({ is_complete: !is_complete })
-      .eq('id', id)
-
-    if (error) console.log('Error updating task:', error)
-    else {
-      setTasks(tasks.map(task => 
-        task.id === id ? { ...task, is_complete: !is_complete } : task
-      ))
-    }
+  function toggleTaskCompletion(id: number, is_complete: boolean) {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, is_complete: !is_complete } : task
+    ))
   }
 
   return (
