@@ -2,6 +2,17 @@
 
 import { NavBar } from '@/components/nav-bar'
 import { useTaskStore } from '@/lib/store'
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { startOfWeek, eachDayOfInterval, endOfWeek, format, parseISO } from 'date-fns'
+
+const categories = [
+  { id: '1', name: 'Trading', color: '#0088FE' },
+  { id: '2', name: 'Crypto', color: '#00C49F' },
+  { id: '3', name: 'Wedding', color: '#FFBB28' },
+  { id: '4', name: 'Personal', color: '#FF8042' },
+  { id: '5', name: 'Miles', color: '#8884d8' },
+  { id: '6', name: 'Coding', color: '#FF6B6B' },
+]
 
 export default function Analyze() {
   const { tasks } = useTaskStore()
@@ -10,11 +21,31 @@ export default function Analyze() {
   const completedTasks = tasks.filter(task => task.completed).length
   const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100)
 
-  // Category breakdown data
-  const categoryBreakdown = tasks.reduce((acc, task) => {
-    acc[task.category] = (acc[task.category] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  // Category breakdown data for pie chart
+  const categoryData = categories.map(cat => ({
+    name: cat.name,
+    value: tasks.filter(task => task.category === cat.id).length,
+    color: cat.color
+  })).filter(cat => cat.value > 0)
+
+  // Weekly completion data
+  const today = new Date()
+  const weekStart = startOfWeek(today)
+  const weekEnd = endOfWeek(today)
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
+
+  const weeklyData = weekDays.map(day => {
+    const dayStr = format(day, 'yyyy-MM-dd')
+    const dayTasks = tasks.filter(task => 
+      format(parseISO(task.date), 'yyyy-MM-dd') === dayStr
+    )
+    
+    return {
+      day: format(day, 'EEE'),
+      total: dayTasks.length,
+      completed: dayTasks.filter(task => task.completed).length
+    }
+  })
 
   return (
     <div className="min-h-screen bg-white">
@@ -38,16 +69,47 @@ export default function Analyze() {
           </div>
         </div>
 
-        {/* Category Breakdown */}
-        <div className="bg-white rounded-lg border shadow-md p-6">
-          <h2 className="font-montserrat italic text-lg mb-4">Category Breakdown</h2>
-          <div className="space-y-4">
-            {Object.entries(categoryBreakdown).map(([category, count]) => (
-              <div key={category} className="flex justify-between items-center">
-                <span className="font-montserrat">{category}</span>
-                <span className="font-montserrat font-bold">{count}</span>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Category Breakdown with Pie Chart */}
+          <div className="bg-white rounded-lg border shadow-md p-6">
+            <h2 className="font-montserrat italic text-lg mb-4">Category Breakdown</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Weekly Progress Graph */}
+          <div className="bg-white rounded-lg border shadow-md p-6">
+            <h2 className="font-montserrat italic text-lg mb-4">Weekly Progress</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyData}>
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="total" name="Total Tasks" fill="#8884d8" />
+                  <Bar dataKey="completed" name="Completed" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       </div>
