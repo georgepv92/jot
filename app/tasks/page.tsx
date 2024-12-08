@@ -2,35 +2,35 @@
 
 import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
-
-interface Task {
-  id: number
-  title: string
-  is_complete: boolean
-}
+import { useTaskStore } from '@/lib/store'
 
 export default function Tasks() {
-  const [tasks, setTasks] = useState<Task[]>([])
+  const { tasks, addTask, toggleTask } = useTaskStore()
   const [newTaskTitle, setNewTaskTitle] = useState('')
 
-  async function addTask(e: React.FormEvent) {
+  useEffect(() => {
+    console.log('Current tasks:', tasks)
+  }, [tasks])
+
+  async function handleAddTask(e: React.FormEvent) {
     e.preventDefault()
     if (!newTaskTitle.trim()) return
 
-    const newTask = {
-      id: tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
-      title: newTaskTitle,
-      is_complete: false
+    console.log('Attempting to add task:', newTaskTitle)
+    
+    try {
+      await addTask({ 
+        title: newTaskTitle,
+        completed: false,
+        date: new Date().toISOString(),
+        category: 'default'
+      })
+      console.log('Task added successfully')
+    } catch (error) {
+      console.error('Error adding task:', error)
     }
 
-    setTasks([...tasks, newTask])
     setNewTaskTitle('')
-  }
-
-  function toggleTaskCompletion(id: number, is_complete: boolean) {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, is_complete: !is_complete } : task
-    ))
   }
 
   return (
@@ -38,7 +38,7 @@ export default function Tasks() {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 bg-white">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-4xl font-bold mb-8 text-black">Tasks</h1>
-          <form onSubmit={addTask} className="mb-4">
+          <form onSubmit={handleAddTask} className="mb-4">
             <input
               type="text"
               placeholder="New task"
@@ -55,11 +55,13 @@ export default function Tasks() {
               <li key={task.id} className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  checked={task.is_complete}
-                  onChange={() => toggleTaskCompletion(task.id, task.is_complete)}
+                  checked={task.completed}
+                  onChange={() => toggleTask(task.id)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <span className={`${task.is_complete ? 'line-through' : ''} text-black`}>{task.title}</span>
+                <span className={`${task.completed ? 'line-through' : ''} text-black`}>
+                  {task.title}
+                </span>
               </li>
             ))}
           </ul>

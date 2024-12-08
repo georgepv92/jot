@@ -1,5 +1,6 @@
 import './globals.css'
 import { Inter, Poppins, Montserrat } from 'next/font/google'
+import { LayoutWrapper } from '@/components/layout-wrapper'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -33,7 +34,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable} ${montserrat.variable}`}>
-      <body className={inter.className}>{children}</body>
+      <LayoutWrapper className={inter.className}>
+        {children}
+      </LayoutWrapper>
     </html>
   )
 }

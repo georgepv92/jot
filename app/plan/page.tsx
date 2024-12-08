@@ -36,14 +36,13 @@ export default function Plan() {
 
   const handleAddTask = () => {
     if (newTask.trim() !== '' && selectedCategory !== '') {
-      const task: Task = {
-        id: Date.now().toString(),
+      addTask({
         title: newTask,
+        date: date ? date.toISOString() : new Date().toISOString(),
         category: selectedCategory,
-        dueDate: date || null,
-        status: 'pending'
-      }
-      addTask(task)
+        completed: false
+      })
+      
       setNewTask('')
       setSelectedCategory('')
       setDate(undefined)

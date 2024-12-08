@@ -34,11 +34,11 @@ const statusColors = {
 }
 
 export default function Track() {
-  const { tasks, updateTaskStatus, deleteTask, updateTaskDueDate } = useTaskStore()
+  const { tasks, toggleTask, deleteTask } = useTaskStore()
 
-  const formatDate = (date: Date | null) => {
+  const formatDate = (date: string) => {
     if (!date) return "No due date"
-    return format(date, "MMM d, yyyy") 
+    return format(new Date(date), "MMM d, yyyy") 
   }
 
   return (
@@ -54,18 +54,10 @@ export default function Track() {
 
         <div className="bg-white rounded-lg border shadow-md overflow-x-auto">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 border-b font-montserrat italic text-sm font-medium text-gray-600">
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-black transition-colors">
-              Task <span>↑↓</span>
-            </div>
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-black transition-colors">
-              Category <span>↑↓</span>
-            </div>
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-black transition-colors">
-              Due Date <span>↑↓</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              Status
-            </div>
+            <div>Task</div>
+            <div>Category</div>
+            <div>Date</div>
+            <div>Status</div>
           </div>
           {tasks.length === 0 ? (
             <div className="p-8 text-center text-gray-500 font-montserrat italic">
@@ -79,56 +71,17 @@ export default function Track() {
                     <div className="font-montserrat font-medium">{task.title}</div>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${categories.find(c => c.id === task.category)?.color}`} />
-                      <span className="font-montserrat italic text-sm">{categories.find(c => c.id === task.category)?.name}</span>
+                      <span className="font-montserrat italic text-sm">
+                        {categories.find(c => c.id === task.category)?.name}
+                      </span>
                     </div>
                     <div className="font-montserrat italic text-sm">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-left font-normal hover:bg-transparent p-0"
-                          >
-                            <span className="font-montserrat italic">
-                              {formatDate(task.dueDate)}
-                            </span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.dueDate || undefined}
-                            onSelect={(date) => date && updateTaskDueDate(task.id, date)}
-                            initialFocus
-                            className="rounded-md"
-                            classNames={{
-                              head_cell: "font-montserrat font-medium text-sm text-gray-500 w-9",
-                              cell: "font-montserrat text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                              day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                              day_selected: "bg-black text-white hover:bg-black hover:text-white focus:bg-black focus:text-white",
-                              nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                              table: "w-full border-collapse",
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      {formatDate(task.date)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className={`font-montserrat italic text-sm ${statusColors[task.status]}`}>
-                          {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => updateTaskStatus(task.id, 'pending')}>
-                            Pending
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateTaskStatus(task.id, 'in-progress')}>
-                            In Progress
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateTaskStatus(task.id, 'completed')}>
-                            Completed
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <span className={`font-montserrat italic text-sm ${task.completed ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {task.completed ? 'Completed' : 'Pending'}
+                      </span>
                       <Button
                         variant="ghost"
                         size="sm"
