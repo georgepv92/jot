@@ -17,6 +17,7 @@ interface TaskStore {
   toggleTask: (id: string) => Promise<void>
   deleteTask: (id: string) => Promise<void>
   loadTasks: () => Promise<void>
+  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'created_at'>>) => Promise<void>
 }
 
 export const useTaskStore = create<TaskStore>()(
@@ -98,6 +99,24 @@ export const useTaskStore = create<TaskStore>()(
 
         set((state) => ({
           tasks: state.tasks.filter((t) => t.id !== id)
+        }))
+      },
+
+      updateTask: async (id, updates) => {
+        const { error } = await supabase
+          .from('tasks')
+          .update(updates)
+          .eq('id', id)
+
+        if (error) {
+          console.error('Error updating task:', error)
+          return
+        }
+
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, ...updates } : task
+          )
         }))
       },
     }),

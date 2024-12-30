@@ -46,7 +46,6 @@ export default function Plan() {
       setNewTask('')
       setSelectedCategory('')
       setDate(undefined)
-      router.push('/track')
     }
   }
 
