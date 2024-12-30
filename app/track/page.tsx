@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Filter, Trash2, MoreHorizontal, Calendar as CalendarIcon, Pencil } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { NavBar } from '@/components/nav-bar'
-import { useTaskStore } from '@/lib/store'
+import { useTaskStore, type Task } from '@/lib/store'
 import { format } from 'date-fns'
 import {
   DropdownMenu,
@@ -55,7 +55,7 @@ export default function Track() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editCategory, setEditCategory] = useState('')
-  const [editDate, setEditDate] = useState<Date>()
+  const [editDate, setEditDate] = useState<Date | undefined>()
   const [editCompleted, setEditCompleted] = useState(false)
 
   const handleEdit = (task: Task) => {

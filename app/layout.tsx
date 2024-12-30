@@ -25,6 +25,9 @@ const montserrat = Montserrat({
 export const metadata = {
   title: 'Jot - Time is Money',
   description: 'Maximize your productivity with Jot',
+  icons: {
+    icon: '/icon.png',
+  },
 }
 
 export default function RootLayout({
